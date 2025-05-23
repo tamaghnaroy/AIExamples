@@ -1,13 +1,21 @@
 https://github.com/NirDiamant/GenAI_Agents/tree/main
 https://github.com/NirDiamant
+https://github.com/dair-ai
 https://github.com/NS-Coding/Programming-Prompt-Generator/
 https://github.com/abilzerian/LLM-Prompt-Library
+
+https://github.com/Mintplex-Labs/anything-llm/tree/master
 
 https://github.com/ProfSynapse/Professor-Synapse
 
 Good Design of Agents
 https://github.com/openai/openai-agents-python/tree/main/src/agents
 https://github.com/DerartuDagne/The-Complete-LangChain-LLMs-Guide/tree/main/langchain-course-code
+
+Microsoft Course
+https://github.com/microsoft/generative-ai-for-beginners
+https://github.com/dair-ai/maven-pe-for-llms-11 (prompt engineering notebooks)
+https://github.com/dair-ai/maven-pe-for-llms-12/
 
 RLHF Openai
 https://github.com/voidful/TextRL
