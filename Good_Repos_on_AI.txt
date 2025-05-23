@@ -1,0 +1,7 @@
+https://github.com/NirDiamant/GenAI_Agents/tree/main
+https://github.com/NirDiamant
+https://github.com/NS-Coding/Programming-Prompt-Generator/
+
+Good Design of Agents
+https://github.com/openai/openai-agents-python/tree/main/src/agents
+
