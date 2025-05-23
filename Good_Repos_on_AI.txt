@@ -1,7 +1,30 @@
 https://github.com/NirDiamant/GenAI_Agents/tree/main
 https://github.com/NirDiamant
 https://github.com/NS-Coding/Programming-Prompt-Generator/
+https://github.com/abilzerian/LLM-Prompt-Library
+
+https://github.com/ProfSynapse/Professor-Synapse
 
 Good Design of Agents
 https://github.com/openai/openai-agents-python/tree/main/src/agents
+https://github.com/DerartuDagne/The-Complete-LangChain-LLMs-Guide/tree/main/langchain-course-code
 
+RLHF Openai
+https://github.com/voidful/TextRL
+
+
+RAG: 
+https://github.com/Daethyra/Build-RAGAI
+
+FInMAth 
+https://github.com/abilzerian/finmath-lib
+https://github.com/abilzerian/finmath-experiments
+
+AI-By_Hand
+https://github.com/ImagineAILab/ai-by-hand-excel
+https://github.com/Ki-Seki/Awesome-Transformer-Visualization
+https://github.com/Ki-Seki/Awesome-Interpretability-in-Large-Language-Models
+https://github.com/Ki-Seki/awesome-llm-interpretability
+
+https://github.com/Ki-Seki/who-to-follow
+https://github.com/Ki-Seki/SituEval
