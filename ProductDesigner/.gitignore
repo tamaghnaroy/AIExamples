@@ -1,6 +1,7 @@
 # Environment variables
 .env
 .env.*
+test-api-key
 
 # Python
 __pycache__/
