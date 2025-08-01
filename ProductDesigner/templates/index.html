@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Deep Planning System - Transform Your Ideas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Hero Section -->
+            <div class="text-center text-white mb-5">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-lightbulb me-3"></i>
+                    Transform Your Ideas
+                </h1>
+                <p class="lead mb-4">
+                    Turn your project concept into a comprehensive, developer-ready blueprint using our AI-powered multi-agent system.
+                </p>
+            </div>
+            
+            <!-- Main Card -->
+            <div class="glass-card p-5 mb-4">
+                <div class="text-center mb-4">
+                    <h2 class="gradient-text fw-bold">Start Your Deep Planning Journey</h2>
+                    <p class="text-white-50">Describe your project idea and let our AI agents create a complete development blueprint</p>
+                </div>
+                
+                <!-- Idea Input Form -->
+                <form id="ideaForm">
+                    <div class="mb-4">
+                        <label for="initialIdea" class="form-label text-white fw-semibold">
+                            <i class="fas fa-rocket me-2"></i>
+                            What's your project idea?
+                        </label>
+                        <div class="textarea-container position-relative">
+                            <textarea 
+                                class="form-control form-control-lg idea-textarea" 
+                                id="initialIdea" 
+                                rows="4" 
+                                required
+                            ></textarea>
+                            <div class="custom-placeholder" id="customPlaceholder">
+                                Describe your project idea in detail. For example: 'A web application that helps users track their daily habits and visualize progress over time with beautiful charts and reminders.'
+                            </div>
+                        </div>
+                        <div class="form-text text-white-50">
+                            Be as detailed as possible. The more context you provide, the better our AI agents can help you.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-gradient btn-lg" id="startButton">
+                            <i class="fas fa-play me-2"></i>
+                            Start Deep Planning Process
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Process Overview -->
+            <div class="glass-card p-4">
+                <h3 class="text-white fw-bold mb-3">
+                    <i class="fas fa-cogs me-2"></i>
+                    How It Works
+                </h3>
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="text-white mb-2">
+                            <i class="fas fa-comments fa-2x"></i>
+                        </div>
+                        <h5 class="text-white">Interview</h5>
+                        <p class="text-white-50 small">AI conducts structured discovery through targeted questions</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="text-white mb-2">
+                            <i class="fas fa-file-alt fa-2x"></i>
+                        </div>
+                        <h5 class="text-white">Documentation</h5>
+                        <p class="text-white-50 small">Generate PRD and Technical Design Documents</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="text-white mb-2">
+                            <i class="fas fa-code fa-2x"></i>
+                        </div>
+                        <h5 class="text-white">Blueprint</h5>
+                        <p class="text-white-50 small">Receive complete implementation guide and testing plan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0">
+            <div class="modal-body text-center p-4">
+                <div class="loading-spinner mb-3"></div>
+                <h5 class="text-white">Creating Your Planning Session</h5>
+                <p class="text-white-50 mb-0">Please wait while we initialize the AI agents...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .textarea-container {
+        position: relative;
+    }
+    
+        .idea-textarea {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--light-color);
+        resize: none;
+        transition: all 0.3s ease;
+    }
+    
+    .idea-textarea:focus {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        color: white;
+    }
+    
+    .custom-placeholder {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.125rem;
+        line-height: 1.5;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+        font-family: inherit;
+    }
+    
+    .custom-placeholder.focused {
+        opacity: 0.3;
+    }
+    
+    .custom-placeholder.hidden {
+        opacity: 0;
+    }
+    
+    /* Auto-resize animation */
+    .idea-textarea {
+        transition: height 0.2s ease;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('ideaForm');
+    const startButton = document.getElementById('startButton');
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const textarea = document.getElementById('initialIdea');
+    const customPlaceholder = document.getElementById('customPlaceholder');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const initialIdea = textarea.value.trim();
+        
+        if (!initialIdea) {
+            alert('Please enter your project idea');
+            return;
+        }
+        
+        // Show loading modal
+        loadingModal.show();
+        startButton.disabled = true;
+        
+        try {
+            const response = await fetch('/api/start_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    initial_idea: initialIdea
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Redirect to dashboard
+                window.location.href = `/dashboard/${data.session_id}`;
+            } else {
+                throw new Error(data.error || 'Failed to start session');
+            }
+        } catch (error) {
+            console.error('Error starting session:', error);
+            alert('Failed to start planning session. Please try again.');
+            loadingModal.hide();
+            startButton.disabled = false;
+        }
+    });
+    
+    // Custom placeholder behavior
+    textarea.addEventListener('input', function() {
+        // Auto-resize functionality
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        
+        // Placeholder visibility
+        if (this.value.trim() !== '') {
+            customPlaceholder.classList.add('hidden');
+        } else {
+            customPlaceholder.classList.remove('hidden');
+        }
+    });
+    
+    textarea.addEventListener('focus', function() {
+        customPlaceholder.classList.add('focused');
+    });
+    
+    textarea.addEventListener('blur', function() {
+        customPlaceholder.classList.remove('focused');
+        if (this.value.trim() === '') {
+            customPlaceholder.classList.remove('hidden');
+        }
+    });
+});
+</script>
+{% endblock %}

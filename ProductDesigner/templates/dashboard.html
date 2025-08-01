@@ -1,0 +1,1165 @@
+{% extends "base.html" %}
+
+{% block title %}Planning Dashboard - Deep Planning System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="glass-card p-3 mb-4">
+                <h5 class="text-white fw-bold mb-3">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    Planning Progress
+                </h5>
+                
+                <!-- Step Indicator -->
+                <div class="step-list">
+                    <div class="step-item" data-step="product_interviewer">
+                        <div class="step-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="text-white mb-1">Product Interview</h6>
+                            <small class="text-white-50">Structured discovery process</small>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item" data-step="prd_generation">
+                        <div class="step-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="text-white mb-1">PRD Generation</h6>
+                            <small class="text-white-50">Product Requirements Document</small>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item" data-step="tech_design">
+                        <div class="step-icon">
+                            <i class="fas fa-drafting-compass"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="text-white mb-1">Technical Design</h6>
+                            <small class="text-white-50">Architecture & specifications</small>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item" data-step="implementation_notes">
+                        <div class="step-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="text-white mb-1">Implementation Guide</h6>
+                            <small class="text-white-50">Step-by-step instructions</small>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item" data-step="testing_plan">
+                        <div class="step-icon">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="text-white mb-1">Testing Plan</h6>
+                            <small class="text-white-50">Comprehensive test strategy</small>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item" data-step="final_assembly">
+                        <div class="step-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="text-white mb-1">Final Assembly</h6>
+                            <small class="text-white-50">Complete blueprint package</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Session Info -->
+            <div class="glass-card p-3">
+                <h6 class="text-white fw-bold mb-2">Session Info</h6>
+                <div class="text-white-50 small">
+                    <div class="mb-1">
+                        <i class="fas fa-clock me-2"></i>
+                        Started: <span id="sessionTime">--</span>
+                    </div>
+                    <div class="mb-1">
+                        <i class="fas fa-tag me-2"></i>
+                        ID: <span id="sessionId">{{ session_id }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="text-white fw-bold mb-1">Deep Planning Dashboard</h2>
+                        <p class="text-white-50 mb-0" id="currentStepDescription">Initializing planning session...</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-success fs-6" id="statusBadge">Active</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="glass-card p-3 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-white fw-semibold">Overall Progress</span>
+                    <span class="text-white" id="progressText">0%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-success progress-bar-animated" 
+                         id="overallProgress" 
+                         role="progressbar" 
+                         style="width: 0%">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div id="mainContent">
+                <!-- Welcome Screen -->
+                <div class="glass-card p-5 text-center" id="welcomeScreen">
+                    <i class="fas fa-rocket fa-3x text-white mb-3"></i>
+                    <h3 class="text-white fw-bold mb-3">Ready to Start Planning</h3>
+                    <p class="text-white-50 mb-4">Click the button below to begin the AI-powered product interview process.</p>
+                    <button class="btn btn-gradient btn-lg" id="startInterviewBtn">
+                        <i class="fas fa-play me-2"></i>
+                        Start Product Interview
+                    </button>
+                </div>
+                
+                <!-- Interview Process -->
+                <div id="interviewProcess" style="display: none;">
+                    <div class="glass-card p-4 mb-4">
+                        <h4 class="text-white fw-bold mb-3">
+                            <i class="fas fa-comments me-2"></i>
+                            Product Interview Process
+                        </h4>
+                        <div class="progress mb-3" style="height: 6px;">
+                            <div class="progress-bar bg-info" 
+                                 id="interviewProgress" 
+                                 role="progressbar" 
+                                 style="width: 0%">
+                            </div>
+                        </div>
+                        <p class="text-white-50" id="interviewStatus">Preparing interview questions...</p>
+                    </div>
+                    
+                    <!-- Questions Container -->
+                    <div id="questionsContainer"></div>
+                </div>
+                
+                <!-- Document Review -->
+                <div id="documentReview" style="display: none;">
+                    <div class="glass-card p-4">
+                        <h4 class="text-white fw-bold mb-3">
+                            <i class="fas fa-file-check me-2"></i>
+                            Document Review
+                        </h4>
+                        <p class="text-white-50 mb-4">Review the generated documents and provide feedback.</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Product Requirements Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="prdPreview" class="document-preview"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Technical Design Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="tddPreview" class="document-preview"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button class="btn btn-gradient me-2" id="approveDocsBtn">
+                                <i class="fas fa-check me-2"></i>
+                                Approve Documents
+                            </button>
+                            <button class="btn btn-outline-light" id="requestRevisionsBtn">
+                                <i class="fas fa-edit me-2"></i>
+                                Request Revisions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Final Results -->
+                <div id="finalResults" style="display: none;">
+                    <div class="glass-card p-4">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h3 class="text-white fw-bold">Planning Complete!</h3>
+                            <p class="text-white-50">Your project blueprint is ready for download.</p>
+                        </div>
+                        
+                        <div class="row" id="finalDocuments">
+                            <!-- Documents will be populated here -->
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-gradient btn-lg" id="downloadAllBtn">
+                                <i class="fas fa-download me-2"></i>
+                                Download Complete Blueprint
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Question Modal -->
+<div class="modal fade" id="questionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content glass-card border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white" id="questionModalTitle">Question</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Question at the top -->
+                <div class="mb-4">
+                    <div class="question-header p-3 rounded" style="background: rgba(255, 255, 255, 0.1);">
+                        <h6 class="text-white mb-2">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Current Question:
+                        </h6>
+                        <p class="text-white mb-0" id="currentQuestionText"></p>
+                    </div>
+                </div>
+                
+                <!-- Two-column layout -->
+                <div class="row">
+                    <!-- Left column: AI Recommendation with markdown -->
+                    <div class="col-md-6">
+                        <div class="h-100">
+                            <h6 class="text-white mb-3">
+                                <i class="fas fa-robot me-2"></i>
+                                AI Recommendation:
+                            </h6>
+                            <div class="recommendation-container h-100" style="max-height: 400px; overflow-y: auto;">
+                                                            <div class="chat-message agent-message markdown-content p-3" id="aiRecommendation" style="background-color: rgba(0,0,0,0.25); border-radius: 8px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right column: User input with markdown support -->
+                    <div class="col-md-6">
+                        <div class="h-100">
+                            <h6 class="text-white mb-3">
+                                <i class="fas fa-user-edit me-2"></i>
+                                Your Response:
+                            </h6>
+                            <div class="user-input-container" style="height: 400px;">
+                                <!-- Tabs for input modes -->
+                                <ul class="nav nav-tabs mb-3" id="inputTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="write-tab" data-bs-toggle="tab" data-bs-target="#write-pane" type="button" role="tab">
+                                            <i class="fas fa-edit me-1"></i> Write
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-pane" type="button" role="tab">
+                                            <i class="fas fa-eye me-1"></i> Preview
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <div class="tab-content" id="inputTabContent" style="height: calc(100% - 50px);">
+                                    <!-- Write tab -->
+                                    <div class="tab-pane fade show active h-100" id="write-pane" role="tabpanel">
+                                        <textarea class="form-control h-100" id="userResponse" 
+                                                  placeholder="Accept the recommendation or provide your own answer...\n\nSupports Markdown:\n- **bold** and *italic*\n- # Headers\n- ```code blocks```\n- [links](url)\n- Lists and more!"
+                                                  style="resize: none; font-family: 'Courier New', monospace;"></textarea>
+                                    </div>
+                                    
+                                    <!-- Preview tab -->
+                                    <div class="tab-pane fade h-100" id="preview-pane" role="tabpanel">
+                                        <div class="preview-content h-100 p-3 border rounded" 
+                                             style="background: rgba(0, 0, 0, 0.25); overflow-y: auto;" 
+                                             id="markdownPreview">
+                                            <p class="text-white-50 text-center mt-5">
+                                                <i class="fas fa-eye-slash fa-2x mb-2"></i><br>
+                                                Preview will appear here as you type
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Skip
+                </button>
+                <button type="button" class="btn btn-gradient" id="saveResponseBtn">
+                    <i class="fas fa-save me-1"></i> Save Response
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.step-list {
+    position: relative;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    position: relative;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+    padding-left: 2rem;
+    margin-left: 1rem;
+}
+
+.step-item:last-child {
+    border-left: none;
+}
+
+.step-item::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    position: absolute;
+    left: -20px;
+    z-index: 2;
+}
+
+.step-item.active .step-icon {
+    background: var(--primary-color);
+    box-shadow: 0 0 15px rgba(var(--primary-color-rgb), 0.5);
+}
+
+.step-item.completed .step-icon {
+    background: var(--success-color);
+}
+
+.user-answer-section {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.user-answer-header {
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    opacity: 1;
+}
+
+.user-answer-content p {
+    color: #f0f0f0 !important;
+    opacity: 1;
+    font-size: 1rem;
+}
+
+.user-answer-content strong {
+    color: #ffffff !important;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.document-preview {
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.markdown-content {
+    color: var(--light-color);
+}
+
+.markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+    color: var(--light-color);
+    font-weight: 600;
+}
+
+.markdown-content p, .markdown-content ul, .markdown-content ol, .markdown-content li {
+    color: #e2e8f0; /* A slightly off-white for better reading */
+}
+
+.markdown-content code {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #f59e0b; /* Amber color for code */
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+}
+
+.markdown-content pre {
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.markdown-content pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.markdown-content blockquote {
+    border-left: 3px solid var(--primary-color);
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Modal enhancements */
+.modal-xl {
+    max-width: 1200px;
+}
+
+.question-header {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+}
+
+.recommendation-container {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.user-input-container {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Markdown content styling */
+.markdown-content {
+    color: white;
+    line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    color: #fff;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.markdown-content h1 { font-size: 1.5rem; }
+.markdown-content h2 { font-size: 1.3rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+
+.markdown-content p {
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.markdown-content strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.markdown-content em {
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+}
+
+.markdown-content code {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffd700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.markdown-content pre {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.markdown-content pre code {
+    background: none;
+    color: #e6e6e6;
+    padding: 0;
+    border-radius: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.markdown-content li {
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.markdown-content a {
+    color: #60a5fa;
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+
+/* Tab styling */
+.nav-tabs {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-tabs .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-tabs .nav-link.active {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: transparent;
+}
+
+/* Preview content styling */
+.preview-content {
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.preview-content .markdown-content {
+    color: white;
+}
+
+/* Textarea styling */
+#userResponse {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+#userResponse:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+#userResponse::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Question Modal Responsive Styles */
+@media (max-width: 768px) {
+    .modal-dialog.modal-xl {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .row.g-3 {
+        flex-direction: column;
+    }
+    
+    .llm-recommendation-panel,
+    .user-input-panel {
+        max-height: 300px !important;
+        min-height: 250px;
+    }
+    
+    #userResponse {
+        min-height: 200px !important;
+    }
+}
+
+/* Enhanced textarea styling */
+#userResponse:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Question header styling */
+.question-header {
+    transition: all 0.3s ease;
+}
+
+.question-header:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Panel styling improvements */
+.llm-recommendation-panel::-webkit-scrollbar,
+.user-input-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.llm-recommendation-panel::-webkit-scrollbar-track,
+.user-input-panel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.llm-recommendation-panel::-webkit-scrollbar-thumb,
+.user-input-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.llm-recommendation-panel::-webkit-scrollbar-thumb:hover,
+.user-input-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* LLM Progress Styling */
+.llm-progress-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.llm-progress-container .progress {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.llm-progress-container .progress-bar {
+    background: linear-gradient(45deg, #17a2b8, #20c997);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.llm-progress-container small.text-info {
+    color: #17a2b8 !important;
+    font-weight: 600;
+}
+
+/* User Answer Styling */
+.user-answer-section {
+    background: rgba(13, 110, 253, 0.1);
+    border: 1px solid rgba(13, 110, 253, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
+    backdrop-filter: blur(10px);
+}
+
+.user-answer-header {
+    color: #0d6efd;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.user-answer-content {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.user-answer-content p {
+    margin-bottom: 8px;
+}
+
+.user-answer-content p:last-child {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+class DashboardManager {
+    constructor(sessionId) {
+        this.sessionId = sessionId;
+        this.socket = io();
+        this.currentQuestionIndex = 0;
+        this.totalQuestions = 13;
+        
+        this.initializeSocketEvents();
+        this.initializeUI();
+        this.joinSession();
+    }
+    
+    initializeSocketEvents() {
+        this.socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+        
+        this.socket.on('session_joined', (data) => {
+            console.log('Joined session:', data.session_id);
+        });
+        
+        this.socket.on('session_update', (data) => {
+            this.updateSessionStatus(data);
+        });
+        
+        this.socket.on('step_started', (data) => {
+            this.handleStepStarted(data);
+        });
+        
+        this.socket.on('question_processing', (data) => {
+            this.handleQuestionProcessing(data);
+        });
+        
+        this.socket.on('llm_progress', (data) => {
+            this.handleLLMProgress(data);
+        });
+        
+        this.socket.on('question_completed', (data) => {
+            this.handleQuestionCompleted(data);
+        });
+        
+        this.socket.on('step_completed', (data) => {
+            this.handleStepCompleted(data);
+        });
+        
+        this.socket.on('response_saved', (data) => {
+            console.log('Response saved:', data);
+            // Show a brief success message
+            this.showSuccessMessage(`Response ${data.question_number} saved successfully!`);
+        });
+        
+        this.socket.on('question_error', (data) => {
+            console.error('Question error:', data);
+            alert(`Error processing question ${data.question_number}: ${data.error}`);
+        });
+        
+        this.socket.on('error', (data) => {
+            console.error('Socket error:', data.message);
+            alert('Error: ' + data.message);
+        });
+    }
+    
+    initializeUI() {
+        document.getElementById('startInterviewBtn').addEventListener('click', () => {
+            this.startInterview();
+        });
+        
+        document.getElementById('saveResponseBtn').addEventListener('click', () => {
+            this.saveUserResponse();
+        });
+        
+        document.getElementById('approveDocsBtn').addEventListener('click', () => {
+            this.approveDocuments();
+        });
+        
+        document.getElementById('downloadAllBtn').addEventListener('click', () => {
+            this.downloadBlueprint();
+        });
+    }
+    
+    joinSession() {
+        this.socket.emit('join_session', { session_id: this.sessionId });
+    }
+    
+    startInterview() {
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('interviewProcess').style.display = 'block';
+        this.updateStepStatus('product_interviewer', 'active');
+        
+        this.socket.emit('start_interview', { session_id: this.sessionId });
+    }
+    
+    handleStepStarted(data) {
+        document.getElementById('interviewStatus').textContent = data.message;
+        this.updateStepStatus(data.step, 'active');
+    }
+    
+    handleQuestionProcessing(data) {
+        const progress = (data.question_number / data.total_questions) * 100;
+        document.getElementById('interviewProgress').style.width = progress + '%';
+        document.getElementById('interviewStatus').textContent = 
+            `Processing question ${data.question_number} of ${data.total_questions}: ${data.question}`;
+        
+        this.addQuestionCard(data);
+    }
+    
+    handleLLMProgress(data) {
+        const questionNumber = data.question_number;
+        const card = document.getElementById(`question-${questionNumber}`);
+        
+        if (!card) return;
+        
+        // For question 1, show detailed progress
+        if (questionNumber === 1) {
+            const processingIndicator = card.querySelector('.processing-indicator');
+            if (processingIndicator) {
+                processingIndicator.innerHTML = `
+                    <div class="llm-progress-container">
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar bg-info progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: ${data.progress}%"
+                                 aria-valuenow="${data.progress}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="loading-spinner me-2"></div>
+                            <small class="text-muted">${data.message}</small>
+                        </div>
+                        <div class="mt-1">
+                            <small class="text-info fw-bold">${data.progress}% Complete</small>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            // For other questions, show simple progress
+            const processingIndicator = card.querySelector('.processing-indicator');
+            if (processingIndicator) {
+                processingIndicator.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="loading-spinner me-2"></div>
+                        <small class="text-muted">${data.message}</small>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    handleQuestionCompleted(data) {
+        this.updateQuestionCard(data);
+        this.showQuestionModal(data);
+    }
+    
+    handleStepCompleted(data) {
+        this.updateStepStatus(data.step, 'completed');
+        
+        if (data.step === 'product_interviewer') {
+            setTimeout(() => {
+                document.getElementById('interviewProcess').style.display = 'none';
+                document.getElementById('documentReview').style.display = 'block';
+                this.updateStepStatus('prd_generation', 'active');
+            }, 2000);
+        }
+    }
+    
+    addQuestionCard(data) {
+        const container = document.getElementById('questionsContainer');
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `question-${data.question_number}`;
+        card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold mb-0">Question ${data.question_number}</h6>
+                <span class="badge bg-warning" id="status-${data.question_number}">Processing...</span>
+            </div>
+            <p class="mb-2">${data.question}</p>
+            <div class="user-answer-section" id="answer-${data.question_number}" style="display: none;">
+                <div class="user-answer-header">
+                    <i class="fas fa-user me-2"></i>
+                    <strong>Your Answer:</strong>
+                </div>
+                <div class="user-answer-content" id="answer-content-${data.question_number}"></div>
+            </div>
+            <div class="processing-indicator">
+                <div class="loading-spinner me-2"></div>
+                <small class="text-muted">AI is analyzing and generating recommendations...</small>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+    
+    updateQuestionCard(data) {
+        const card = document.getElementById(`question-${data.question_number}`);
+        const statusBadge = document.getElementById(`status-${data.question_number}`);
+        
+        statusBadge.className = 'badge bg-success';
+        statusBadge.textContent = 'Completed';
+        
+        const processingIndicator = card.querySelector('.processing-indicator');
+        processingIndicator.innerHTML = `
+            <div class="alert alert-success alert-sm">
+                <i class="fas fa-check me-2"></i>
+                AI recommendation ready for review
+            </div>
+        `;
+    }
+    
+    // Markdown parsing function
+    parseMarkdown(text) {
+        if (!text) return '';
+        
+        // Convert markdown to HTML
+        let html = text
+            // Headers
+            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+            .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+            // Bold
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            // Italic
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            // Code blocks
+            .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+            // Inline code
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // Links
+            .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+            // Line breaks
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            // Lists
+            .replace(/^\s*\* (.+)$/gm, '<li>$1</li>')
+            .replace(/^\s*- (.+)$/gm, '<li>$1</li>')
+            .replace(/^\s*\d+\. (.+)$/gm, '<li>$1</li>');
+        
+        // Wrap in paragraphs if not already wrapped
+        if (!html.startsWith('<') && html.trim()) {
+            html = '<p>' + html + '</p>';
+        }
+        
+        // Fix list formatting
+        html = html.replace(/(<li>.*?<\/li>)/gs, function(match) {
+            return '<ul>' + match + '</ul>';
+        });
+        
+        return html;
+    }
+    
+    showQuestionModal(data) {
+        document.getElementById('questionModalTitle').textContent = `Question ${data.question_number}`;
+        
+        // Set the current question text
+        document.getElementById('currentQuestionText').textContent = data.question || 'Loading question...';
+        
+        // Safely handle the AI recommendation content with markdown parsing
+        const aiRecommendationElement = document.getElementById('aiRecommendation');
+        if (data.analysis && data.analysis.user_presentation) {
+            const content = this.parseMarkdown(data.analysis.user_presentation);
+            aiRecommendationElement.innerHTML = content;
+        } else if (data.analysis && data.analysis.refined_answer) {
+            const content = this.parseMarkdown(data.analysis.refined_answer);
+            aiRecommendationElement.innerHTML = content;
+        } else {
+            aiRecommendationElement.innerHTML = '<p class="text-white-50"><i class="fas fa-spinner fa-spin me-2"></i>AI recommendation is being processed...</p>';
+        }
+        
+        // Clear user response and preview
+        document.getElementById('userResponse').value = '';
+        document.getElementById('markdownPreview').innerHTML = `
+            <p class="text-white-50 text-center mt-5">
+                <i class="fas fa-eye-slash fa-2x mb-2"></i><br>
+                Preview will appear here as you type
+            </p>
+        `;
+        
+        // Set up real-time markdown preview
+        this.setupMarkdownPreview();
+        
+        const modal = new bootstrap.Modal(document.getElementById('questionModal'));
+        modal.show();
+        
+        // Store current question data
+        this.currentQuestionData = data;
+        
+        // Debug logging
+        console.log('Question data:', data);
+        console.log('Analysis:', data.analysis);
+    }
+    
+    setupMarkdownPreview() {
+        const textarea = document.getElementById('userResponse');
+        const preview = document.getElementById('markdownPreview');
+        
+        // Remove existing event listeners
+        textarea.removeEventListener('input', this.previewHandler);
+        
+        // Create new event handler
+        this.previewHandler = () => {
+            const text = textarea.value;
+            if (text.trim()) {
+                preview.innerHTML = this.parseMarkdown(text);
+            } else {
+                preview.innerHTML = `
+                    <p class="text-white-50 text-center mt-5">
+                        <i class="fas fa-eye-slash fa-2x mb-2"></i><br>
+                        Preview will appear here as you type
+                    </p>
+                `;
+            }
+        };
+        
+        // Add event listener
+        textarea.addEventListener('input', this.previewHandler);
+    }
+    
+    displayUserAnswer(questionNumber, answer) {
+        const answerSection = document.getElementById(`answer-${questionNumber}`);
+        const answerContent = document.getElementById(`answer-content-${questionNumber}`);
+        
+        if (answerSection && answerContent) {
+            // Format the answer text (handle line breaks)
+            let formattedAnswer = answer.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+            if (!formattedAnswer.startsWith('<p>')) {
+                formattedAnswer = '<p>' + formattedAnswer + '</p>';
+            }
+            
+            answerContent.innerHTML = formattedAnswer;
+            answerSection.style.display = 'block';
+        }
+    }
+    
+    saveUserResponse() {
+        const response = document.getElementById('userResponse').value.trim();
+        const finalResponse = response || this.currentQuestionData.analysis.refined_answer;
+        
+        // Display the user's answer in the question card
+        this.displayUserAnswer(this.currentQuestionData.question_number, finalResponse);
+        
+        this.socket.emit('user_response', {
+            session_id: this.sessionId,
+            question_number: this.currentQuestionData.question_number,
+            response: finalResponse
+        });
+        
+        bootstrap.Modal.getInstance(document.getElementById('questionModal')).hide();
+    }
+    
+    updateStepStatus(step, status) {
+        // Remove all status classes
+        document.querySelectorAll('.step-item').forEach(item => {
+            item.classList.remove('active', 'completed');
+        });
+        
+        // Add status to current step
+        const stepElement = document.querySelector(`[data-step="${step}"]`);
+        if (stepElement) {
+            stepElement.classList.add(status);
+        }
+        
+        // Mark previous steps as completed
+        const steps = ['product_interviewer', 'prd_generation', 'tech_design', 'implementation_notes', 'testing_plan', 'final_assembly'];
+        const currentIndex = steps.indexOf(step);
+        
+        for (let i = 0; i < currentIndex; i++) {
+            const prevStep = document.querySelector(`[data-step="${steps[i]}"]`);
+            if (prevStep) {
+                prevStep.classList.add('completed');
+            }
+        }
+        
+        // Update overall progress
+        const progress = ((currentIndex + 1) / steps.length) * 100;
+        document.getElementById('overallProgress').style.width = progress + '%';
+        document.getElementById('progressText').textContent = Math.round(progress) + '%';
+    }
+    
+    approveDocuments() {
+        this.socket.emit('continue_to_next_step', { session_id: this.sessionId });
+        document.getElementById('documentReview').style.display = 'none';
+        // Continue with next steps...
+    }
+    
+    downloadBlueprint() {
+        // Implementation for downloading the complete blueprint
+        alert('Download functionality would be implemented here');
+    }
+    
+    updateSessionStatus(data) {
+        document.getElementById('sessionTime').textContent = new Date(data.created_at || Date.now()).toLocaleString();
+        this.updateStepStatus(data.current_step, 'active');
+    }
+    
+    showSuccessMessage(message) {
+        // Create a temporary success message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            <i class="fas fa-check me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 3000);
+    }
+}
+
+// Initialize dashboard when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const sessionId = '{{ session_id }}';
+    window.dashboard = new DashboardManager(sessionId);
+});
+</script>
+{% endblock %}
