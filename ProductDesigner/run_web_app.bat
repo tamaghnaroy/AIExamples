@@ -12,8 +12,15 @@ if not exist .env (
 
 REM --- Activate Conda and run the app ---
 
-REM Path to conda activate script. This is a common location.
-set CONDA_ACTIVATE_SCRIPT=C:\Code\anaconda3\Scripts\activate.bat
+REM Read CONDA_ACTIVATE_SCRIPT from .env file
+for /f "tokens=2 delims==" %%i in ('findstr /b "CONDA_ACTIVATE_SCRIPT=" .env 2^>nul') do set CONDA_ACTIVATE_SCRIPT=%%i
+
+if not defined CONDA_ACTIVATE_SCRIPT (
+    echo Error: CONDA_ACTIVATE_SCRIPT not found in .env file!
+    echo Please add CONDA_ACTIVATE_SCRIPT=path_to_your_conda_activate_script to your .env file.
+    pause
+    exit /b 1
+)
 
 if not exist "%CONDA_ACTIVATE_SCRIPT%" (
     echo Conda activation script not found at %CONDA_ACTIVATE_SCRIPT%

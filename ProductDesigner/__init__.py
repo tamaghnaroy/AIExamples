@@ -7,4 +7,6 @@ implementation planning, and testing strategies.
 """
 
 __version__ = "1.0.0"
-__author__ = "Deep Planning Team"
+__author__ = "Tamaghna Roy"
+__license__ = "MIT"
+__copyright__ = "Copyright 2025 Tamaghna Roy"

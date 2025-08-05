@@ -6,7 +6,8 @@ of the product development workflow.
 """
 
 from .base_agent import BaseAgent
-from .product_interviewer import ProductInterviewerAgent
+from .safe_product_interviewer import SafeProductInterviewerAgent
+from .research_subgraph_agent import ResearchSubgraphAgent
 from .prd_generator import PRDGeneratorAgent
 from .tech_design_generator import TechDesignGeneratorAgent
 from .technical_manager import TechnicalManagerAgent
@@ -15,7 +16,8 @@ from .final_assembler import FinalAssemblerAgent
 
 __all__ = [
     'BaseAgent',
-    'ProductInterviewerAgent',
+    'SafeProductInterviewerAgent',
+    'ResearchSubgraphAgent',
     'PRDGeneratorAgent',
     'TechDesignGeneratorAgent',
     'TechnicalManagerAgent',
