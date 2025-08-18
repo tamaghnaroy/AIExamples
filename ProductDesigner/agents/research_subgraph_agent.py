@@ -375,14 +375,14 @@ class ResearchSubgraphAgent(BaseAgent):
     Uses LangGraph for orchestration and supports parallel execution of multiple search protocols.
     """
 
-    def __init__(self):
+    def __init__(self, use_firecrawl: bool = False):
         """Initialize the Research Subgraph Agent."""
         super().__init__()
         self.max_depth = 5
         self.enabled_protocols = [SearchProtocol.OPENAI_WEB_SEARCH]
         
         # Add Firecrawl if available
-        if FirecrawlApp is not None and os.getenv("FIRECRAWL_API_KEY"):
+        if FirecrawlApp is not None and os.getenv("FIRECRAWL_API_KEY") and use_firecrawl:
             self.enabled_protocols.append(SearchProtocol.FIRECRAWL)
             
         self.research_graph = self._build_research_graph()
@@ -480,9 +480,9 @@ class ResearchSubgraphAgent(BaseAgent):
         template = (
             "You are a useful product research and gap analysis agent. Based on the initial product idea from the user below, you will generate a list of queries to research the product idea from scratch. "
             "Focus on the following: "
-            "1. Existing solution similar to the user idea "
-            "2. Typical Feature set for a product with similarity to the user idea "
-            "3. Examples of typical User journey for a product with similarity to the user idea "
+            "1. Core MVP Features - A list of features that are required for the MVP of the user idea "
+            "2. Nice to Have Features - A list of features that are not required for the MVP of the user idea "
+            "3. Key User journeys for a product with similarity to the user idea "
             "4. Typical tech stack for a product with similarity to the user idea "
             "5. Existing codebases in Github which can be leveraged for implementing the user idea "
             "6. Third party python packages or open source projects / packages that can be used for implementing the user idea "
@@ -651,9 +651,11 @@ class ResearchSubgraphAgent(BaseAgent):
         learning_text = "\n\n========\n\n".join(all_learnings)
         
         template = (
-            "You are a knowledge synthesis agent. Based on the initial product idea and all the research findings below, "
-            "create a comprehensive knowledge base that organizes and synthesizes the information. "
-            "Structure your response with clear sections covering: "
+            "You are a consultant the User has hired to help them build a product. Based on the initial product idea and all the research findings from your research agents is provided below, "
+            "The client wants to build the product - your primary goal is to enable them with comprehensive knowledge base that will help them make informed decisions."
+            "The client will use this knowledge base to make decisions about how to execute the product idea. Focus on execution and implementation details. Prevent reinventing the wheel wherever possible by leveraging existing open source libraries. "
+            "Give sufficient details of all the libraries your suggest. If there is external data involved - make sure to give sufficient details of the data sources, data models, api etc.."
+            "Here are some suggestions for the knowledge base (use this as a seed, you are not restricted by the following list and feel free to add or remove any section):"
             "1. Executive Summary "
             "2. Existing Solutions and Features we can leverage for user product idea"
             "3. Technical Architecture & Stack Recommendations "
