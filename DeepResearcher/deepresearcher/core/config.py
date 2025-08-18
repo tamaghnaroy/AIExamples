@@ -85,37 +85,80 @@ class Config:
     state_schema_version: str = "1"
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Research Orchestrator v3.7 (budgets, logging, externalized state)")
-    p.add_argument("topic", nargs="?", type=str, help="Primary research topic (interactive prompt if omitted).")
-    p.add_argument("--output", type=str, default="research_result.json", help="Output JSON file path.")
-    p.add_argument("--model", type=str, default=os.getenv("LLM_MODEL", "gpt-4o"), help="OpenAI chat model.")
-    p.add_argument("--temp", type=float, default=float(os.getenv("LLM_TEMPERATURE", "0.0")), help="LLM temperature.")
+    p = argparse.ArgumentParser(
+        description="DeepResearcher v3.7 - AI-powered research orchestrator with budget controls",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python deepresearcher.py "AI agent benchmarks"
+  python deepresearcher.py --token-budget 50000 --cost-budget 5.0 "Climate change impacts"
+  python deepresearcher.py --run-id abc123 --output results.json "Machine learning trends"
+
+Budget Controls:
+  The system tracks token usage, cost, and time to prevent runaway execution.
+  Adjust budgets based on research complexity and available resources.
+        """
+    )
+    
+    # Core arguments
+    p.add_argument("topic", nargs="?", type=str, 
+                   help="Research topic to investigate (if omitted, interactive prompt will appear)")
+    
+    # Output and resumption
+    p.add_argument("--output", type=str, default="research_result.json",
+                   help="Output file path for research results (default: research_result.json)")
+    p.add_argument("--run-id", type=str, default="",
+                   help="Resume existing research session by run ID (default: start new session)")
+    
+    # AI Model configuration
+    p.add_argument("--model", type=str, default=os.getenv("LLM_MODEL", "gpt-4o"),
+                   help="OpenAI chat model to use (default: gpt-4o)")
+    p.add_argument("--temp", type=float, default=float(os.getenv("LLM_TEMPERATURE", "0.0")),
+                   help="LLM temperature for creativity vs consistency (default: 0.0)")
     p.add_argument("--embed-model", type=str, default=os.getenv("EMBED_MODEL", "text-embedding-3-small"),
-                   help="Embedding model for semantic search and task similarity.")
+                   help="Embedding model for semantic search (default: text-embedding-3-small)")
+    
+    # Research behavior
     p.add_argument("--iter-depth", type=int, default=int(os.getenv("RESEARCH_ITER_DEPTH", "6")),
-                   help="Max router iterations before budget stop.")
+                   help="Maximum research iterations before stopping (default: 6)")
     p.add_argument("--max-questions", type=int, default=int(os.getenv("RESEARCH_MAX_QUESTIONS", "4")),
-                   help="Number of questions for initial planning.")
+                   help="Number of initial research questions to generate (default: 4)")
+    
+    # Performance and caching
     p.add_argument("--cache-dir", type=str, default=os.getenv("RESEARCH_CACHE_DIR", ".cache/research"),
-                   help="Cache directory.")
-    p.add_argument("--clear-cache", action="store_true", help="Clear cache before running.")
+                   help="Directory for caching search results (default: .cache/research)")
+    p.add_argument("--clear-cache", action="store_true",
+                   help="Clear cache before starting research")
     p.add_argument("--timeout", type=int, default=int(os.getenv("RESEARCH_TIMEOUT_S", "25")),
-                   help="Per-request timeout in seconds.")
+                   help="Timeout for individual web requests in seconds (default: 25)")
     p.add_argument("--max-concurrency", type=int, default=int(os.getenv("RESEARCH_MAX_CONCURRENCY", "5")),
-                   help="Max concurrent scrapes/summaries/extractions.")
+                   help="Maximum concurrent web scraping operations (default: 5)")
+    
+    # Content processing
     p.add_argument("--tokens-per-source", type=int, default=int(os.getenv("RESEARCH_TOKENS_PER_SOURCE", "2500")),
-                   help="Approx token budget per source snippet.")
-    p.add_argument("--rrf-k", type=int, default=int(os.getenv("RESEARCH_RRF_K", "60")), help="RRF fusion constant k.")
-    p.add_argument("--bm25-k1", type=float, default=float(os.getenv("RESEARCH_BM25_K1", "1.5")), help="BM25 k1.")
-    p.add_argument("--bm25-b", type=float, default=float(os.getenv("RESEARCH_BM25_B", "0.75")), help="BM25 b.")
+                   help="Token budget per source document for processing (default: 2500)")
+    
+    # Search algorithm tuning
+    p.add_argument("--rrf-k", type=int, default=int(os.getenv("RESEARCH_RRF_K", "60")),
+                   help="Reciprocal Rank Fusion constant for search ranking (default: 60)")
+    p.add_argument("--bm25-k1", type=float, default=float(os.getenv("RESEARCH_BM25_K1", "1.5")),
+                   help="BM25 k1 parameter for term frequency saturation (default: 1.5)")
+    p.add_argument("--bm25-b", type=float, default=float(os.getenv("RESEARCH_BM25_B", "0.75")),
+                   help="BM25 b parameter for document length normalization (default: 0.75)")
+    
+    # Budget controls
     p.add_argument("--token-budget", type=int, default=int(os.getenv("RESEARCH_TOKEN_BUDGET", "120000")),
-                   help="Total token budget for the run.")
+                   help="Total token budget limit for the research session (default: 120000)")
     p.add_argument("--cost-budget", type=float, default=float(os.getenv("RESEARCH_COST_BUDGET", "8.00")),
-                   help="Total cost budget (USD) for the run.")
+                   help="Total cost budget limit in USD (default: 8.00)")
     p.add_argument("--time-budget", type=int, default=int(os.getenv("RESEARCH_TIME_BUDGET_S", "600")),
-                   help="Total wall-clock time budget (seconds) for the run.")
-    p.add_argument("--log-level", type=str, default=os.getenv("RESEARCH_LOG_LEVEL", "INFO"), help="Log level.")
-    p.add_argument("--run-id", type=str, default="", help="Resume an existing run_id (if state exists).")
+                   help="Total time budget in seconds (default: 600 = 10 minutes)")
+    
+    # Logging
+    p.add_argument("--log-level", type=str, default=os.getenv("RESEARCH_LOG_LEVEL", "INFO"),
+                   choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+                   help="Logging verbosity level (default: INFO)")
+    
     return p.parse_args()
 
 # Pricing map (USD per 1K tokens) — v3.7 approximate, update as needed

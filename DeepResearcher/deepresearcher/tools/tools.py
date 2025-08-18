@@ -146,7 +146,7 @@ class Tools:
         return f"Completed task: {item.description}"
 
     def _verif_cache_path(self, claim: str) -> str:
-        return os.path.join(self.verif_dir, f"{_hash_key(claim)}.json")
+        return os.path.join(self.verif_dir, f"{hash_key(claim)}.json")
 
     def _load_verif_cache(self, claim: str) -> Optional[List[VerifiedClaim]]:
         path = self._verif_cache_path(claim)

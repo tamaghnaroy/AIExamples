@@ -229,8 +229,8 @@ class Orchestrator:
             # Strategy review cadence (from v3.5)
             try:
                 if self.cfg.review_every_steps > 0 and step % self.cfg.review_every_steps == 0:
-                    res = await self.tools_obj.review_and_prune_plan_tool(state)
-                    state.last_action_result = f"Review: pruned={len(res.get('pruned', []))}, reordered={len(res.get('reordered', []))}"
+                    res = await self.tools_obj.review_and_prune_plan_tool(state, evidence)
+                    state.last_action_result = f"Review: {res}"
             except Exception as e:
                 log.bind(event="review_error", run_id=self.run_id, step=step, err=str(e)).warning("review.failed")
 

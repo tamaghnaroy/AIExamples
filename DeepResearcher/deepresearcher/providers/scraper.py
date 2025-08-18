@@ -26,14 +26,31 @@ class Scraper:
                 with open(path, "r") as f:
                     return json.load(f)
         try:
-            data = await asyncio.wait_for(self.client.scrape_url(url), timeout=timeout_s)
+            data = self.client.scrape_url(url)
             log.bind(event="firecrawl_scrape", run_id=self.run_id, url=url).info("scraper.invoked")
-            # Firecrawl returns a dict with 'content', 'markdown', 'metadata'
+            # Handle both dict and ScrapeResponse object formats
+            if hasattr(data, 'content'):
+                # ScrapeResponse object
+                content = getattr(data, 'content', '') or ''
+                metadata = getattr(data, 'metadata', {}) or {}
+                if hasattr(metadata, 'get'):
+                    publisher = metadata.get('sourceURL', '')
+                    pub_date = metadata.get('publishedTime', None)
+                else:
+                    publisher = getattr(metadata, 'sourceURL', '') if metadata else ''
+                    pub_date = getattr(metadata, 'publishedTime', None) if metadata else None
+            else:
+                # Dict format
+                content = data.get("content", "") if isinstance(data, dict) else ""
+                metadata = data.get("metadata", {}) if isinstance(data, dict) else {}
+                publisher = metadata.get("sourceURL", "") if isinstance(metadata, dict) else ""
+                pub_date = metadata.get("publishedTime", None) if isinstance(metadata, dict) else None
+            
             res = {
-                "content": data.get("content", ""),
+                "content": content,
                 "url": url,
-                "publisher": data.get("metadata", {}).get("sourceURL", ""),
-                "pub_date": data.get("metadata", {}).get("publishedTime"),
+                "publisher": publisher,
+                "pub_date": pub_date,
             }
             async with self._lock:
                 with open(path, "w") as f:
