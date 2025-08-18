@@ -164,6 +164,18 @@ class DeepResearchClient:
         
     def _setup_logging(self) -> None:
         """Configure structured logging."""
+        import logging
+        
+        # Map log level strings to logging constants
+        log_level_map = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR
+        }
+        
+        log_level = log_level_map.get(self.config.log_level.upper(), logging.INFO)
+        
         timestamper = structlog.processors.TimeStamper(fmt="iso")
         structlog.configure(
             processors=[
@@ -172,9 +184,7 @@ class DeepResearchClient:
                 structlog.processors.format_exc_info,
                 structlog.processors.JSONRenderer(),
             ],
-            wrapper_class=structlog.make_filtering_bound_logger(
-                getattr(structlog.stdlib, self.config.log_level.upper(), structlog.stdlib.INFO)
-            ),
+            wrapper_class=structlog.make_filtering_bound_logger(log_level),
             context_class=dict,
             cache_logger_on_first_use=True,
         )

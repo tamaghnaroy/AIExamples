@@ -37,6 +37,8 @@ def test_configuration():
     print("\nTesting configuration...")
     
     try:
+        from deepresearcher import ResearchConfig
+        
         # Test default config
         config = ResearchConfig()
         print(f"✅ Default config created: {config.llm_model}")
@@ -61,6 +63,8 @@ def test_client_creation():
     print("\nTesting client creation...")
     
     try:
+        from deepresearcher import DeepResearchClient, ResearchConfig
+        
         # Test with environment variables (will fail if not set, but that's expected)
         config = ResearchConfig(
             openai_api_key="test_key",
@@ -93,6 +97,8 @@ def test_data_structures():
     print("\nTesting data structures...")
     
     try:
+        from deepresearcher import ResearchSynthesis, ResearchProgress
+        
         # Test ResearchSynthesis
         synthesis = ResearchSynthesis(
             topic="Test topic",
